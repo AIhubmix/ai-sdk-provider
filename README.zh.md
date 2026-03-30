@@ -14,7 +14,17 @@
 **[Aihubmix provider](https://sdk.vercel.ai/providers/community-providers/aihubmix)** 适用于 [AI SDK](https://ai-sdk.dev/docs)
 一个网关，无限模型；一站式请求：OpenAI、Claude、Gemini、DeepSeek、Qwen 以及超过 500 个 AI 模型。
 
-> **📦 版本 1.0.1** - 兼容 AI SDK v6
+## 安装 AI SDK v6 版本
+
+```bash
+npm i @aihubmix/ai-sdk-provider
+```
+
+### （旧版）安装 AI SDK v5 版本
+
+```bash
+npm i @aihubmix/ai-sdk-provider@0.0.6
+```
 
 ## 支持的功能
 
@@ -29,14 +39,6 @@ Aihubmix provider 支持以下 AI 功能：
 - **语音合成**：文本转语音转换
 - **转录**：语音转文本转换
 - **工具**：网络搜索和其他工具
-
-## 安装
-
-Aihubmix 在 `@aihubmix/ai-sdk-provider` 模块中可用。您可以通过 [@aihubmix/ai-sdk-provider](https://www.npmjs.com/package/@aihubmix/ai-sdk-provider) 安装它
-
-```bash
-npm i @aihubmix/ai-sdk-provider
-```
 
 ## Provider 实例
 
@@ -299,7 +301,7 @@ const { text } = await generateText({
 
 ## 附加资源
 
-- [Aihubmix Provider 仓库](https://github.com/inferera/aihubmix)
+- [Aihubmix Provider 仓库](https://github.com/AIhubmix/ai-sdk-provider)
 - [Aihubmix 文档](https://docs.aihubmix.com/en)
 - [Aihubmix 控制台](https://aihubmix.com)
 - [Aihubmix 商务合作](mailto:business@aihubmix.com) 

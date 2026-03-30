@@ -14,8 +14,17 @@ Built-in app-code; using this method to request all models offers a 10% discount
 The **[Aihubmix provider](https://sdk.vercel.ai/providers/community-providers/aihubmix)** for the [AI SDK](https://ai-sdk.dev/docs)
 One Gateway, Infinite Models；one-stop request: OpenAI, Claude, Gemini, DeepSeek, Qwen, and over 500 AI models.
 
-> **📦 Version 1.0.1** - Compatible with AI SDK v6
+## Setup for AI SDK v6
 
+```bash
+npm i @aihubmix/ai-sdk-provider
+```
+
+### (LEGACY) Setup for AI SDK v5
+
+```bash
+npm i @aihubmix/ai-sdk-provider@0.0.6
+```
 
 ## Supported Features
 
@@ -31,14 +40,6 @@ The Aihubmix provider supports the following AI features:
 - **Transcription**: Speech-to-text conversion
 - **Tools**: Web search and other tools
 
-
-## Setup
-
-The Aihubmix provider is available in the `@aihubmix/ai-sdk-provider` module. You can install it with [@aihubmix/ai-sdk-provider](https://www.npmjs.com/package/@aihubmix/ai-sdk-provider)
-
-```bash
-npm i @aihubmix/ai-sdk-provider
-```
 
 ## Provider Instance
 
@@ -302,7 +303,7 @@ const { text } = await generateText({
 
 ## Additional Resources
 
-- [Aihubmix Provider Repository](https://github.com/inferera/aihubmix)
+- [Aihubmix Provider Repository](https://github.com/AIhubmix/ai-sdk-provider)
 - [Aihubmix Documentation](https://docs.aihubmix.com/en)
 - [Aihubmix Dashboard](https://aihubmix.com)
 - [Aihubmix Cooperation](mailto:business@aihubmix.com)

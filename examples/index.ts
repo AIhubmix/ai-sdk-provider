@@ -11,11 +11,11 @@ console.log('🚀 开始执行 Aihubmix AI SDK Provider 测试套件\n');
 // 测试配置
 const testConfig = {
   generateText: {
-    model: 'claude-3-7-sonnet-20250219',
+    model: 'claude-sonnet-4-6',
     prompt: 'Invent a new holiday and describe its traditions.',
   },
   streamText: {
-    model: 'gpt-3.5-turbo',
+    model: 'gemini-2.5-flash',
     prompt: 'Invent a new holiday and describe its traditions.',
   },
   generateImage: {

@@ -30,6 +30,76 @@ const handlers = [
       headers: Object.fromEntries(request.headers.entries()),
       body: await request.json(),
     };
+
+    // 如果请求体包含 stream: true，返回 SSE 流式响应
+    if (lastRequest.body?.stream) {
+      // 模拟网关返回的带有额外字段的流式 chunk
+      const chunks = [
+        `data: ${JSON.stringify({
+          id: 'chatcmpl-123',
+          object: 'chat.completion.chunk',
+          created: 1711115037,
+          model: 'gpt-4o',
+          system_fingerprint: 'fp_abc',
+          service_tier: 'default',
+          choices: [{
+            index: 0,
+            delta: { role: 'assistant', content: 'Hello' },
+            finish_reason: null,
+            logprobs: null,
+          }],
+          x_request_id: 'gateway-12345',
+        })}\n\n`,
+        `data: ${JSON.stringify({
+          id: 'chatcmpl-123',
+          object: 'chat.completion.chunk',
+          created: 1711115037,
+          model: 'gpt-4o',
+          system_fingerprint: 'fp_abc',
+          service_tier: 'default',
+          choices: [{
+            index: 0,
+            delta: { content: ' World' },
+            finish_reason: null,
+            logprobs: null,
+          }],
+        })}\n\n`,
+        `data: ${JSON.stringify({
+          id: 'chatcmpl-123',
+          object: 'chat.completion.chunk',
+          created: 1711115037,
+          model: 'gpt-4o',
+          choices: [{
+            index: 0,
+            delta: {},
+            finish_reason: 'stop',
+            logprobs: null,
+          }],
+          usage: {
+            prompt_tokens: 4,
+            completion_tokens: 2,
+            total_tokens: 6,
+            prompt_tokens_details: { cached_tokens: 0 },
+            completion_tokens_details: { reasoning_tokens: 0, accepted_prediction_tokens: 0, rejected_prediction_tokens: 0 },
+          },
+        })}\n\n`,
+        'data: [DONE]\n\n',
+      ];
+
+      const stream = new ReadableStream({
+        start(controller) {
+          for (const chunk of chunks) {
+            controller.enqueue(new TextEncoder().encode(chunk));
+          }
+          controller.close();
+        },
+      });
+
+      return new HttpResponse(stream, {
+        headers: { 'Content-Type': 'text/event-stream' },
+      });
+    }
+
     return HttpResponse.json({
       id: 'chatcmpl-95ZTZkhr0mHNKqerQfiwkuox3PHAd',
       object: 'chat.completion',
@@ -232,6 +302,31 @@ describe('aihubmix provider', () => {
         expect(
           (result.content[0] as { type: 'text'; text: string }).text,
         ).toStrictEqual('Hello from GPT-4o!');
+      });
+
+      it('should stream text with extra fields in SSE chunks without Zod errors', async () => {
+        const result = await provider('gpt-4o').doStream({
+          prompt: TEST_PROMPT,
+        });
+
+        const parts: any[] = [];
+        for await (const part of result.stream) {
+          parts.push(part);
+        }
+
+        // 验证流式响应没有报 Zod 校验错误
+        const errors = parts.filter(p => p.type === 'error');
+        expect(errors).toHaveLength(0);
+
+        // 验证收到了正确的文本
+        const textDeltas = parts.filter(p => p.type === 'text-delta');
+        const fullText = textDeltas.map(p => p.delta).join('');
+        expect(fullText).toBe('Hello World');
+
+        // 验证收到了 finish 事件
+        const finish = parts.find(p => p.type === 'finish');
+        expect(finish).toBeDefined();
+        expect(finish.finishReason.unified).toBe('stop');
       });
 
       it('should pass correct headers for OpenAI models', async () => {

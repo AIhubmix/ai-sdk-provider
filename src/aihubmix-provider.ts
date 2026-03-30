@@ -1,8 +1,10 @@
 import {
-  OpenAIChatLanguageModel,
-  OpenAICompletionLanguageModel,
-  OpenAIEmbeddingModel,
-  OpenAIImageModel,
+  OpenAICompatibleChatLanguageModel,
+  OpenAICompatibleCompletionLanguageModel,
+  OpenAICompatibleEmbeddingModel,
+  OpenAICompatibleImageModel,
+} from '@ai-sdk/openai-compatible';
+import {
   OpenAIResponsesLanguageModel,
   OpenAITranscriptionModel,
   OpenAISpeechModel,
@@ -145,37 +147,13 @@ class AihubmixTranscriptionModel extends OpenAITranscriptionModel {
   }
 }
 
-// 自定义 OpenAI 聊天模型类，修复空工具时的 tool_choice 问题
-class AihubmixOpenAIChatLanguageModel extends OpenAIChatLanguageModel {
-  constructor(modelId: string, settings: any) {
-    super(modelId, {
-      ...settings,
-      fetch: AihubmixOpenAIChatLanguageModel.createCustomFetch(settings.fetch),
-    });
+// 修复空工具时的 tool_choice 问题
+function transformRequestBody(body: Record<string, any>): Record<string, any> {
+  if (body.tools && Array.isArray(body.tools) && body.tools.length === 0 && body.tool_choice) {
+    const { tool_choice, ...rest } = body;
+    return rest;
   }
-
-  private static createCustomFetch(originalFetch?: any) {
-    return async (url: string, options: any) => {
-      // 拦截请求并修复 tool_choice 问题
-      if (options?.body) {
-        try {
-          const body = JSON.parse(options.body);
-          if (body.tools && Array.isArray(body.tools) && body.tools.length === 0 && body.tool_choice) {
-            delete body.tool_choice;
-            options.body = JSON.stringify(body);
-          }
-          // 调试：打印 max_tokens 参数
-          if (body.max_tokens !== undefined) {
-            console.log('🔍 [DEBUG] Request max_tokens:', body.max_tokens);
-          }
-        } catch (error) {
-          // 如果解析失败，继续使用原始请求
-        }
-      }
-      
-      return originalFetch ? originalFetch(url, options) : fetch(url, options);
-    };
-  }
+  return body;
 }export function createAihubmix(
   options: AihubmixProviderSettings = {},
 ): AihubmixProvider {
@@ -242,21 +220,14 @@ class AihubmixOpenAIChatLanguageModel extends OpenAIChatLanguageModel {
       );
     }
 
-    if (deploymentName === "gpt-5-pro" || deploymentName === "gpt-5-codex") {
-      console.log('responses request', deploymentName);
-			return new OpenAIResponsesLanguageModel(deploymentName, {
-				provider: 'aihubmix.chat',
-				url,
-				headers: getHeaders,
-				fetch: options.fetch,
-			});
-		}
-
-    return new AihubmixOpenAIChatLanguageModel(deploymentName, {
+    return new OpenAICompatibleChatLanguageModel(deploymentName, {
       provider: 'aihubmix.chat',
       url,
       headers: getHeaders,
       fetch: options.fetch,
+      includeUsage: true,
+      supportsStructuredOutputs: true,
+      transformRequestBody,
     });
   };
 
@@ -264,21 +235,22 @@ class AihubmixOpenAIChatLanguageModel extends OpenAIChatLanguageModel {
     modelId: string,
     settings: any = {},
   ) =>
-    new OpenAICompletionLanguageModel(modelId, {
+    new OpenAICompatibleCompletionLanguageModel(modelId, {
       provider: 'aihubmix.completion',
       url,
       headers: getHeaders,
       fetch: options.fetch,
+      includeUsage: true,
     });
 
   const createEmbeddingModel = (
     modelId: string,
     settings: any = {},
   ) => {
-    return new OpenAIEmbeddingModel(modelId, {
+    return new OpenAICompatibleEmbeddingModel(modelId, {
       provider: 'aihubmix.embeddings',
-      headers: getHeaders,
       url,
+      headers: getHeaders,
       fetch: options.fetch,
     });
   };
@@ -294,7 +266,7 @@ class AihubmixOpenAIChatLanguageModel extends OpenAIChatLanguageModel {
     modelId: string,
     settings: any = {},
   ) => {
-    return new OpenAIImageModel(modelId, {
+    return new OpenAICompatibleImageModel(modelId, {
       provider: 'aihubmix.image',
       url,
       headers: getHeaders,

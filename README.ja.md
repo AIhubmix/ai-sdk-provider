@@ -14,7 +14,17 @@ app-codeが内蔵されており、この方法でモデルをリクエストす
 [AI SDK](https://ai-sdk.dev/docs)用の **[Aihubmix provider](https://sdk.vercel.ai/providers/community-providers/aihubmix)**
 一つのゲートウェイ、無限のモデル；ワンストップリクエスト：OpenAI、Claude、Gemini、DeepSeek、Qwen、そして500以上のAIモデル。
 
-> **📦 バージョン 1.0.1** - AI SDK v6 対応
+## AI SDK v6 用セットアップ
+
+```bash
+npm i @aihubmix/ai-sdk-provider
+```
+
+### （レガシー）AI SDK v5 用セットアップ
+
+```bash
+npm i @aihubmix/ai-sdk-provider@0.0.6
+```
 
 ## サポートされている機能
 
@@ -29,14 +39,6 @@ Aihubmix providerは以下のAI機能をサポートしています：
 - **音声合成**：テキストから音声への変換
 - **転写**：音声からテキストへの変換
 - **ツール**：ウェブ検索およびその他のツール
-
-## セットアップ
-
-Aihubmix providerは`@aihubmix/ai-sdk-provider`モジュールで利用可能です。[@aihubmix/ai-sdk-provider](https://www.npmjs.com/package/@aihubmix/ai-sdk-provider)でインストールできます
-
-```bash
-npm i @aihubmix/ai-sdk-provider
-```
 
 ## Provider インスタンス
 
@@ -299,7 +301,7 @@ const { text } = await generateText({
 
 ## 追加リソース
 
-- [Aihubmix Provider リポジトリ](https://github.com/inferera/aihubmix)
+- [Aihubmix Provider リポジトリ](https://github.com/AIhubmix/ai-sdk-provider)
 - [Aihubmix ドキュメント](https://docs.aihubmix.com/en)
 - [Aihubmix ダッシュボード](https://aihubmix.com)
 - [Aihubmix ビジネス協力](mailto:business@aihubmix.com)

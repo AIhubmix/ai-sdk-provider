@@ -1,7 +1,8 @@
 {
   "name": "@aihubmix/ai-sdk-provider",
-  "version": "1.0.4",
+  "version": "2.0.5",
   "license": "Apache-2.0",
+  "packageManager": "pnpm@10.28.0",
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -34,23 +35,21 @@
     "@ai-sdk/anthropic": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",
     "@ai-sdk/openai": "^3.0.0",
+    "@ai-sdk/openai-compatible": "^2.0.37",
     "@ai-sdk/provider": "^3.0.0",
     "@ai-sdk/provider-utils": "^4.0.0"
   },
   "peerDependencies": {
     "zod": "^3.25.0 || ^4.0.0"
   },
-  "peerDependenciesMeta": {
-    "zod": {
-      "optional": false
-    }
-  },
   "devDependencies": {
+    "@changesets/cli": "^2.29.0",
     "@edge-runtime/vm": "^2.0.0",
     "@types/node": "20.17.24",
     "jsdom": "^24.0.0",
     "msw": "^2.7.0",
     "tsup": "^8",
+    "turbo": "^2.5.0",
     "typescript": "5.6.3",
     "vitest": "^2.0.0",
     "zod": "^3.25.0"
@@ -64,10 +63,10 @@
   "homepage": "https://aihubmix.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/inferera/aihubmix.git"
+    "url": "git+https://github.com/AIhubmix/ai-sdk-provider.git"
   },
   "bugs": {
-    "url": "https://github.com/inferera/aihubmix/issues"
+    "url": "https://github.com/AIhubmix/ai-sdk-provider/issues"
   },
   "keywords": [
     "ai",

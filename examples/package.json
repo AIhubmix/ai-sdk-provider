@@ -11,7 +11,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@aihubmix/ai-sdk-provider": "^1.0.4",
+    "@aihubmix/ai-sdk-provider": "workspace:^",
     "ai": "^6.0.0",
     "dotenv": "^16.6.1",
     "image-type": "^5.2.0",
