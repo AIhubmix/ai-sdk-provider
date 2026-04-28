@@ -187,12 +187,13 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
   ) => {
     const headers = getHeaders();
     if (deploymentName.startsWith('claude-')) {
+      const { Authorization, ...restHeaders } = headers;
       return new AnthropicMessagesLanguageModel(deploymentName, {
         provider: 'aihubmix.chat',
         baseURL: url({ path: '', modelId: deploymentName }),
         headers: {
-          ...headers,
-          'x-api-key': headers['Authorization'].split(' ')[1],
+          ...restHeaders,
+          'x-api-key': Authorization.split(' ')[1],
         },
         supportedUrls: () => ({
           'image/*': [/^https?:\/\/.*$/],
@@ -205,14 +206,15 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
       !deploymentName.endsWith('-nothink') &&
       !deploymentName.endsWith('-search')
     ) {
+      const { Authorization, ...restHeaders } = headers;
       return new GoogleGenerativeAILanguageModel(
         deploymentName,
         {
           provider: 'aihubmix.chat',
           baseURL: 'https://aihubmix.com/gemini/v1beta',
           headers: {
-            ...headers,
-            'x-goog-api-key': headers['Authorization'].split(' ')[1],
+            ...restHeaders,
+            'x-goog-api-key': Authorization.split(' ')[1],
           },
           generateId: () => `aihubmix-${Date.now()}`,
           supportedUrls: () => ({}),

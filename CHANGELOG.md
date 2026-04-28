@@ -1,5 +1,11 @@
 # @aihubmix/ai-sdk-provider
 
+## 2.0.6
+
+### Patch Changes
+
+- 修复 Anthropic / Google 模型透传 `Authorization` 头的问题:这两个 SDK 自带 `x-api-key` / `x-goog-api-key`,不再额外发送 `Authorization`,避免上游对冗余鉴权头敏感。
+
 ## 1.0.1
 
 ### Patch Changes

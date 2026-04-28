@@ -364,9 +364,7 @@ describe('aihubmix provider', () => {
           prompt: TEST_PROMPT,
         });
 
-        expect(lastRequest?.headers['authorization']).toBe(
-          'Bearer test-api-key',
-        );
+        expect(lastRequest?.headers['authorization']).toBeUndefined();
         expect(lastRequest?.headers['content-type']).toBe('application/json');
         expect(lastRequest?.headers['app-code']).toBe('WHVL9885');
         expect(lastRequest?.headers['x-api-key']).toBe('test-api-key');
@@ -391,9 +389,7 @@ describe('aihubmix provider', () => {
           prompt: TEST_PROMPT,
         });
 
-        expect(lastRequest?.headers['authorization']).toBe(
-          'Bearer test-api-key',
-        );
+        expect(lastRequest?.headers['authorization']).toBeUndefined();
         expect(lastRequest?.headers['content-type']).toBe('application/json');
         expect(lastRequest?.headers['app-code']).toBe('WHVL9885');
         expect(lastRequest?.headers['x-goog-api-key']).toBe('test-api-key');
