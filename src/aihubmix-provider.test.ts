@@ -522,6 +522,119 @@ describe('aihubmix provider', () => {
     });
   });
 
+  describe('baseURL and fetch', () => {
+    const chatCompletionResponse = {
+      id: 'chatcmpl-custom',
+      object: 'chat.completion',
+      created: 1711115037,
+      model: 'gpt-4o',
+      choices: [
+        {
+          index: 0,
+          message: { role: 'assistant', content: 'Hello from custom host!' },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { prompt_tokens: 4, total_tokens: 34, completion_tokens: 30 },
+    };
+
+    // 记录 URL 并返回固定响应的自定义 fetch
+    const makeStubFetch = () => {
+      const calls: string[] = [];
+      const fetchFn = (async (input: any) => {
+        const reqUrl =
+          typeof input === 'string' ? input : input.url ?? String(input);
+        calls.push(reqUrl);
+        return new HttpResponse(JSON.stringify(chatCompletionResponse), {
+          headers: { 'Content-Type': 'application/json' },
+        }) as unknown as Response;
+      }) as any;
+      return { fetchFn, calls };
+    };
+
+    it('should default baseURL to https://aihubmix.com', async () => {
+      const { fetchFn, calls } = makeStubFetch();
+      const p = createAihubmix({ apiKey: 'test-api-key', fetch: fetchFn });
+
+      await p('gpt-4o').doGenerate({ prompt: TEST_PROMPT });
+
+      expect(calls[0]).toBe('https://aihubmix.com/v1/chat/completions');
+    });
+
+    it('should use a custom baseURL for OpenAI-compatible models', async () => {
+      const { fetchFn, calls } = makeStubFetch();
+      const p = createAihubmix({
+        apiKey: 'test-api-key',
+        baseURL: 'https://gateway.example.com',
+        fetch: fetchFn,
+      });
+
+      await p('gpt-4o').doGenerate({ prompt: TEST_PROMPT });
+
+      expect(calls[0]).toBe('https://gateway.example.com/v1/chat/completions');
+    });
+
+    it('should strip a trailing slash from baseURL', async () => {
+      const { fetchFn, calls } = makeStubFetch();
+      const p = createAihubmix({
+        apiKey: 'test-api-key',
+        baseURL: 'https://gateway.example.com/',
+        fetch: fetchFn,
+      });
+
+      await p('gpt-4o').doGenerate({ prompt: TEST_PROMPT });
+
+      expect(calls[0]).toBe('https://gateway.example.com/v1/chat/completions');
+    });
+
+    it('should pass custom fetch through to the OpenAI-compatible model', async () => {
+      const { fetchFn, calls } = makeStubFetch();
+      const p = createAihubmix({ apiKey: 'test-api-key', fetch: fetchFn });
+
+      await p('gpt-4o').doGenerate({ prompt: TEST_PROMPT });
+
+      expect(calls.length).toBe(1);
+    });
+
+    it('should pass custom fetch through to Claude models', async () => {
+      const { fetchFn, calls } = makeStubFetch();
+      const p = createAihubmix({
+        apiKey: 'test-api-key',
+        baseURL: 'https://gateway.example.com',
+        fetch: fetchFn,
+      });
+
+      try {
+        await p('claude-3-sonnet-20240229').doGenerate({ prompt: TEST_PROMPT });
+      } catch {
+        // 响应体不是 Anthropic 格式会抛错，但只要 fetch 被调用且命中自定义 host 即可
+      }
+
+      expect(calls.length).toBe(1);
+      expect(calls[0]).toContain('https://gateway.example.com/v1');
+    });
+
+    it('should pass custom fetch through to Gemini models', async () => {
+      const { fetchFn, calls } = makeStubFetch();
+      const p = createAihubmix({
+        apiKey: 'test-api-key',
+        baseURL: 'https://gateway.example.com',
+        fetch: fetchFn,
+      });
+
+      try {
+        await p('gemini-2.5-pro-preview-05-06').doGenerate({
+          prompt: TEST_PROMPT,
+        });
+      } catch {
+        // 同上：只验证 fetch 透传与自定义 host
+      }
+
+      expect(calls.length).toBe(1);
+      expect(calls[0]).toContain('https://gateway.example.com/gemini/v1beta');
+    });
+  });
+
   describe('transcription', () => {
     describe('doGenerate', () => {
       it('should pass headers', async () => {

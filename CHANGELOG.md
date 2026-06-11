@@ -1,5 +1,12 @@
 # @aihubmix/ai-sdk-provider
 
+## 2.2.0
+
+### Minor Changes
+
+- 新增 `baseURL` 配置项:`createAihubmix({ baseURL })` 可覆盖请求 host（默认 `https://aihubmix.com`，末尾斜杠会自动去除）。`/v1`、`/gemini/v1beta` 等路径自动拼接，适用于自建网关 / 代理场景。
+- 修复 `fetch` 透传:为 Claude、Gemini、Responses 三类模型补上 `fetch` 选项,使自定义 `fetch` 对所有 sub-model 生效（此前仅 OpenAI-compatible / completion / transcription / speech 生效）。
+
 ## 2.1.0
 
 ### Minor Changes

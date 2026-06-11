@@ -79,6 +79,30 @@ const aihubmix = createAihubmix({
 });
 ```
 
+### `baseURL`（任意）
+
+デフォルトではすべてのリクエストは `https://aihubmix.com` に送信されます。独自のゲートウェイやプロキシ経由にする場合は `baseURL` を渡します（末尾のスラッシュは自動的に除去されます）。`/v1` や `/gemini/v1beta` などのパスは自動的に付与されます：
+
+```ts
+import { createAihubmix } from '@aihubmix/ai-sdk-provider';
+
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  baseURL: 'https://your-gateway.example.com', // 任意；デフォルトは https://aihubmix.com
+});
+```
+
+### カスタム `fetch`
+
+カスタム `fetch` 実装（プロキシ、ロギング、テスト用）を渡せます。OpenAI互換、Claude、Gemini、Responses、文字起こし、音声のすべてのモデルに転送されます：
+
+```ts
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  fetch: myCustomFetch,
+});
+```
+
 ## 使用
 
 まず、必要な関数をインポートします：

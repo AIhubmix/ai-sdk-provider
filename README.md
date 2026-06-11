@@ -82,6 +82,35 @@ const aihubmix = createAihubmix({
 });
 ```
 
+### `baseURL` (optional)
+
+By default all requests go to `https://aihubmix.com`. To route through your
+own gateway or proxy, pass `baseURL` (a trailing slash is allowed and
+stripped). Paths such as `/v1` and `/gemini/v1beta` are appended
+automatically:
+
+```ts
+import { createAihubmix } from '@aihubmix/ai-sdk-provider';
+
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  baseURL: 'https://your-gateway.example.com', // optional; defaults to https://aihubmix.com
+});
+```
+
+### Custom `fetch`
+
+You may pass a custom `fetch` implementation (for proxies, logging, or
+testing). It is forwarded to every model — OpenAI-compatible, Claude,
+Gemini, Responses, transcription, and speech:
+
+```ts
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  fetch: myCustomFetch,
+});
+```
+
 ## Usage
 
 First, import the necessary functions:

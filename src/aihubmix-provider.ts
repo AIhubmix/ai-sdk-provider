@@ -82,6 +82,12 @@ export interface AihubmixProvider extends ProviderV3 {
 }
 export interface AihubmixProviderSettings {
   apiKey?: string;
+  /**
+   * Base URL (host root) for all requests. Defaults to
+   * `'https://aihubmix.com'`. Paths such as `/v1` and `/gemini/v1beta`
+   * are appended automatically. A trailing slash is allowed and stripped.
+   */
+  baseURL?: string;
   fetch?: FetchFunction;
   compatibility?: 'strict' | 'compatible';
   /**
@@ -93,6 +99,9 @@ export interface AihubmixProviderSettings {
 
 // 默认 APP-Code（项目内置），可通过 AihubmixProviderSettings.appCode 覆盖
 const DEFAULT_APP_CODE = 'WHVL9885';
+
+// 默认 host（项目内置），可通过 AihubmixProviderSettings.baseURL 覆盖
+const DEFAULT_BASE_URL = 'https://aihubmix.com';
 
 class AihubmixTranscriptionModel extends OpenAITranscriptionModel {
   async doGenerate(options: TranscriptionModelV3CallOptions) {
@@ -186,10 +195,10 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
     'APP-Code': appCode,
   });
 
-  const url = ({ path, modelId }: { path: string; modelId: string }) => {
-    const baseURL = 'https://aihubmix.com/v1';
-    return `${baseURL}${path}`;
-  };
+  const ROOT = (options.baseURL ?? DEFAULT_BASE_URL).replace(/\/$/, '');
+
+  const url = ({ path }: { path: string; modelId?: string }) =>
+    `${ROOT}/v1${path}`;
 
   const createChatModel = (
     deploymentName: string,
@@ -200,11 +209,12 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
       const { Authorization, ...restHeaders } = headers;
       return new AnthropicMessagesLanguageModel(deploymentName, {
         provider: 'aihubmix.chat',
-        baseURL: url({ path: '', modelId: deploymentName }),
+        baseURL: url({ path: '' }),
         headers: {
           ...restHeaders,
           'x-api-key': Authorization.split(' ')[1],
         },
+        fetch: options.fetch,
         supportedUrls: () => ({
           'image/*': [/^https?:\/\/.*$/],
         }),
@@ -221,11 +231,12 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
         deploymentName,
         {
           provider: 'aihubmix.chat',
-          baseURL: 'https://aihubmix.com/gemini/v1beta',
+          baseURL: `${ROOT}/gemini/v1beta`,
           headers: {
             ...restHeaders,
             'x-goog-api-key': Authorization.split(' ')[1],
           },
+          fetch: options.fetch,
           generateId: () => `aihubmix-${Date.now()}`,
           supportedUrls: () => ({}),
         },
@@ -272,6 +283,7 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
       provider: 'aihubmix.responses',
       url,
       headers: getHeaders,
+      fetch: options.fetch,
     });
 
   const createImageModel = (

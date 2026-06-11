@@ -79,6 +79,30 @@ const aihubmix = createAihubmix({
 });
 ```
 
+### `baseURL`（可选）
+
+默认所有请求发往 `https://aihubmix.com`。若要走自建网关或代理，可传入 `baseURL`（末尾斜杠会自动去除）。`/v1`、`/gemini/v1beta` 等路径会自动拼接：
+
+```ts
+import { createAihubmix } from '@aihubmix/ai-sdk-provider';
+
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  baseURL: 'https://your-gateway.example.com', // 可选；默认 https://aihubmix.com
+});
+```
+
+### 自定义 `fetch`
+
+可传入自定义 `fetch` 实现（用于代理、日志或测试）。它会透传给所有模型 —— OpenAI 兼容、Claude、Gemini、Responses、转录与语音：
+
+```ts
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  fetch: myCustomFetch,
+});
+```
+
 ## 使用
 
 首先，导入必要的函数：
