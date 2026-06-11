@@ -162,7 +162,9 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
     return rest;
   }
   return body;
-}export function createAihubmix(
+}
+
+export function createAihubmix(
   options: AihubmixProviderSettings = {},
 ): AihubmixProvider {
   const appCode = options.appCode ?? DEFAULT_APP_CODE;
@@ -205,6 +207,7 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
           ...restHeaders,
           'x-api-key': Authorization.split(' ')[1],
         },
+        fetch: options.fetch,
         supportedUrls: () => ({
           'image/*': [/^https?:\/\/.*$/],
         }),
@@ -226,6 +229,7 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
             ...restHeaders,
             'x-goog-api-key': Authorization.split(' ')[1],
           },
+          fetch: options.fetch,
           generateId: () => `aihubmix-${Date.now()}`,
           supportedUrls: () => ({}),
         },

@@ -390,6 +390,23 @@ describe('aihubmix provider', () => {
         expect(lastRequest?.headers['app-code']).toBe('WHVL9885');
         expect(lastRequest?.headers['x-api-key']).toBe('test-api-key');
       });
+
+      it('should use custom fetch for Claude models', async () => {
+        const fetchCalls: string[] = [];
+        const customProvider = createAihubmix({
+          apiKey: 'test-api-key',
+          fetch: async (input: any, init?: any) => {
+            fetchCalls.push(input?.url ?? String(input));
+            return fetch(input, init);
+          },
+        });
+
+        await customProvider('claude-3-sonnet-20240229').doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(fetchCalls).toStrictEqual(['https://aihubmix.com/v1/messages']);
+      });
     });
 
     describe('Gemini models', () => {
@@ -414,6 +431,25 @@ describe('aihubmix provider', () => {
         expect(lastRequest?.headers['content-type']).toBe('application/json');
         expect(lastRequest?.headers['app-code']).toBe('WHVL9885');
         expect(lastRequest?.headers['x-goog-api-key']).toBe('test-api-key');
+      });
+
+      it('should use custom fetch for Gemini models', async () => {
+        const fetchCalls: string[] = [];
+        const customProvider = createAihubmix({
+          apiKey: 'test-api-key',
+          fetch: async (input: any, init?: any) => {
+            fetchCalls.push(input?.url ?? String(input));
+            return fetch(input, init);
+          },
+        });
+
+        await customProvider('gemini-2.5-pro-preview-05-06').doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(fetchCalls).toStrictEqual([
+          'https://aihubmix.com/gemini/v1beta/models/gemini-2.5-pro-preview-05-06:generateContent',
+        ]);
       });
     });
   });
