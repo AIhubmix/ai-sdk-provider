@@ -66,6 +66,19 @@ const aihubmix = createAihubmix({
 });
 ```
 
+### `appCode`（可选）
+
+每个请求都会携带 `APP-Code` 请求头。默认使用本包内置的值，因此**通常无需设置**。如果你有自己的 app code，可传入 `appCode` 覆盖默认值：
+
+```ts
+import { createAihubmix } from '@aihubmix/ai-sdk-provider';
+
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  appCode: 'YOUR-APP-CODE', // 可选；不传时回退到内置默认值
+});
+```
+
 ## 使用
 
 首先，导入必要的函数：

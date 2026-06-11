@@ -66,6 +66,19 @@ const aihubmix = createAihubmix({
 });
 ```
 
+### `appCode`（任意）
+
+すべてのリクエストには `APP-Code` ヘッダーが付与されます。デフォルトでは本パッケージに組み込まれた値が使われるため、**通常は設定不要です**。独自の app code がある場合は、`appCode` を渡してデフォルト値を上書きできます：
+
+```ts
+import { createAihubmix } from '@aihubmix/ai-sdk-provider';
+
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  appCode: 'YOUR-APP-CODE', // 任意；省略時は組み込みのデフォルト値にフォールバック
+});
+```
+
 ## 使用
 
 まず、必要な関数をインポートします：

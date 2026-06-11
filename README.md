@@ -67,6 +67,21 @@ const aihubmix = createAihubmix({
 });
 ```
 
+### `appCode` (optional)
+
+Every request carries an `APP-Code` header. By default it uses the value
+built into this package, so **you do not need to set it**. If you have your
+own app code, pass `appCode` to override the default:
+
+```ts
+import { createAihubmix } from '@aihubmix/ai-sdk-provider';
+
+const aihubmix = createAihubmix({
+  apiKey: 'your-api-key-here',
+  appCode: 'YOUR-APP-CODE', // optional; falls back to the built-in default when omitted
+});
+```
+
 ## Usage
 
 First, import the necessary functions:
