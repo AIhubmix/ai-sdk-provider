@@ -84,7 +84,15 @@ export interface AihubmixProviderSettings {
   apiKey?: string;
   fetch?: FetchFunction;
   compatibility?: 'strict' | 'compatible';
+  /**
+   * APP-Code header sent with every request. Defaults to the project's
+   * built-in app code; pass a value here to override it.
+   */
+  appCode?: string;
 }
+
+// 默认 APP-Code（项目内置），可通过 AihubmixProviderSettings.appCode 覆盖
+const DEFAULT_APP_CODE = 'WHVL9885';
 
 class AihubmixTranscriptionModel extends OpenAITranscriptionModel {
   async doGenerate(options: TranscriptionModelV3CallOptions) {
@@ -157,13 +165,15 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
 }export function createAihubmix(
   options: AihubmixProviderSettings = {},
 ): AihubmixProvider {
+  const appCode = options.appCode ?? DEFAULT_APP_CODE;
+
   const getHeaders = () => ({
     Authorization: `Bearer ${loadApiKey({
       apiKey: options.apiKey,
       environmentVariableName: 'AIHUBMIX_API_KEY',
       description: 'Aihubmix',
     })}`,
-    'APP-Code': 'WHVL9885',
+    'APP-Code': appCode,
     'Content-Type': 'application/json',
   });
 
@@ -173,7 +183,7 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
       environmentVariableName: 'AIHUBMIX_API_KEY',
       description: 'Aihubmix',
     })}`,
-    'APP-Code': 'WHVL9885',
+    'APP-Code': appCode,
   });
 
   const url = ({ path, modelId }: { path: string; modelId: string }) => {

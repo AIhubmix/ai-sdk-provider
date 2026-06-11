@@ -346,6 +346,27 @@ describe('aihubmix provider', () => {
           'request-header-value',
         );
       });
+
+      it('should use the default APP-Code when appCode is not provided', async () => {
+        await provider('gpt-4o').doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(lastRequest?.headers['app-code']).toBe('WHVL9885');
+      });
+
+      it('should override APP-Code when appCode is provided', async () => {
+        const customProvider = createAihubmix({
+          apiKey: 'test-api-key',
+          appCode: 'CUSTOM-CODE',
+        });
+
+        await customProvider('gpt-4o').doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(lastRequest?.headers['app-code']).toBe('CUSTOM-CODE');
+      });
     });
 
     describe('Claude models', () => {

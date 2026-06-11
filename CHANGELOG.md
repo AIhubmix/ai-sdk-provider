@@ -1,5 +1,11 @@
 # @aihubmix/ai-sdk-provider
 
+## 2.1.0
+
+### Minor Changes
+
+- 新增 `appCode` 配置项:`createAihubmix({ appCode })` 可覆盖请求头 `APP-Code`。不传时仍使用项目内置默认值 `WHVL9885`,行为向后兼容。
+
 ## 2.0.6
 
 ### Patch Changes
