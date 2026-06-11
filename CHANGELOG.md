@@ -1,5 +1,11 @@
 # @aihubmix/ai-sdk-provider
 
+## 2.2.1
+
+### Patch Changes
+
+- 修复 `2.2.0` 发布时未重新构建 `dist` 的问题:`2.2.0` 的源码已包含 `baseURL` 与 Claude/Gemini/Responses 的 `fetch` 透传,但发布产物仍是旧 `dist`,导致这些能力实际未生效。本版重新构建并发布,内容与 `2.2.0` 预期一致。请从 `2.2.0` 升级到本版。
+
 ## 2.2.0
 
 ### Minor Changes
