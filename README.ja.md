@@ -336,6 +336,10 @@ const { text } = await generateText({
 });
 ```
 
+## 既知の問題
+
+- **OpenCode Desktop で `ERR_UNSUPPORTED_DIR_IMPORT` / `Failed to initialize provider: aihubmix` が発生する** — これは OpenCode Desktop 自体のバグです（[anomalyco/opencode#31909](https://github.com/anomalyco/opencode/issues/31909)）。API キーやネットワークの問題ではありません。回避策は [docs/opencode-desktop-troubleshooting.md](./docs/opencode-desktop-troubleshooting.md) を参照してください。OpenCode CLI は影響を受けません。
+
 ## 追加リソース
 
 - [Aihubmix Provider リポジトリ](https://github.com/AIhubmix/ai-sdk-provider)
