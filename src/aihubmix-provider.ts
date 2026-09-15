@@ -25,6 +25,11 @@ import { aihubmixTools } from './aihubmix-tools';
 
 // OpenAI Provider 设置类型
 interface OpenAIProviderSettings {
+  /**
+   * 显式指定该模型走哪种上游协议，覆盖按模型 ID 前缀（`claude-`/`gemini`/`imagen`）
+   * 的自动推断。当模型命名不遵循这套前缀规律时用它兜底，避免静默路由错协议。
+   */
+  protocol?: 'anthropic' | 'google' | 'openai-compat';
   [key: string]: unknown;
 }
 
@@ -102,6 +107,41 @@ const DEFAULT_APP_CODE = 'WHVL9885';
 
 // 默认 host（项目内置），可通过 AihubmixProviderSettings.baseURL 覆盖
 const DEFAULT_BASE_URL = 'https://aihubmix.com';
+
+type AihubmixProtocol = 'anthropic' | 'google' | 'openai-compat';
+
+/**
+ * 按模型 ID 前缀推断该走哪种上游协议。这是启发式规则，不是权威映射——新上线的模型
+ * 一旦不遵循 `claude-`/`gemini`/`imagen` 命名前缀，会静默落到 openai-compat 协议，
+ * 请求可能失败或行为不符合预期，且不会抛出明确错误。
+ *
+ * 如果你知道某个模型 ID 实际应该走哪种协议，在 `settings.protocol` 里显式传
+ * `'anthropic' | 'google' | 'openai-compat'` 即可覆盖这里的猜测，不依赖命名规律。
+ */
+function resolveProtocol(
+  deploymentName: string,
+  override?: unknown,
+): AihubmixProtocol {
+  if (
+    override === 'anthropic' ||
+    override === 'google' ||
+    override === 'openai-compat'
+  ) {
+    return override;
+  }
+  if (deploymentName.startsWith('claude-')) {
+    return 'anthropic';
+  }
+  if (
+    (deploymentName.startsWith('gemini') ||
+      deploymentName.startsWith('imagen')) &&
+    !deploymentName.endsWith('-nothink') &&
+    !deploymentName.endsWith('-search')
+  ) {
+    return 'google';
+  }
+  return 'openai-compat';
+}
 
 class AihubmixTranscriptionModel extends OpenAITranscriptionModel {
   async doGenerate(options: TranscriptionModelV3CallOptions) {
@@ -205,7 +245,9 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
     settings: OpenAIProviderSettings = {},
   ) => {
     const headers = getHeaders();
-    if (deploymentName.startsWith('claude-')) {
+    const protocol = resolveProtocol(deploymentName, settings.protocol);
+
+    if (protocol === 'anthropic') {
       const { Authorization, ...restHeaders } = headers;
       return new AnthropicMessagesLanguageModel(deploymentName, {
         provider: 'aihubmix.chat',
@@ -220,12 +262,7 @@ function transformRequestBody(body: Record<string, any>): Record<string, any> {
         }),
       });
     }
-    if (
-      (deploymentName.startsWith('gemini') ||
-        deploymentName.startsWith('imagen')) &&
-      !deploymentName.endsWith('-nothink') &&
-      !deploymentName.endsWith('-search')
-    ) {
+    if (protocol === 'google') {
       const { Authorization, ...restHeaders } = headers;
       return new GoogleGenerativeAILanguageModel(
         deploymentName,
