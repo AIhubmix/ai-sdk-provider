@@ -280,6 +280,29 @@ const handlers = [
       });
     },
   ),
+
+  // 覆盖 settings.protocol 显式指定 'google' 的场景：模型名不带 gemini/imagen 前缀。
+  http.post(
+    'https://aihubmix.com/gemini/v1beta/models/custom-google-model:generateContent',
+    async ({ request }) => {
+      lastRequest = {
+        url: request.url,
+        headers: Object.fromEntries(request.headers.entries()),
+        body: await request.json(),
+      };
+      return HttpResponse.json({
+        candidates: [
+          {
+            content: { parts: [{ text: 'Hello from forced Gemini!' }] },
+            finishReason: 'STOP',
+            index: 0,
+            safetyRatings: [],
+          },
+        ],
+        promptFeedback: { safetyRatings: [] },
+      });
+    },
+  ),
 ];
 
 const server = setupServer(...handlers);
@@ -414,6 +437,60 @@ describe('aihubmix provider', () => {
         expect(lastRequest?.headers['content-type']).toBe('application/json');
         expect(lastRequest?.headers['app-code']).toBe('WHVL9885');
         expect(lastRequest?.headers['x-goog-api-key']).toBe('test-api-key');
+      });
+    });
+
+    describe('protocol override (settings.protocol)', () => {
+      it('routes a non-"claude-" model to Anthropic when protocol is "anthropic"', async () => {
+        const result = await provider('custom-claude-model', {
+          protocol: 'anthropic',
+        }).doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(lastRequest?.url).toBe('https://aihubmix.com/v1/messages');
+        expect(lastRequest?.headers['x-api-key']).toBe('test-api-key');
+        expect(
+          (result.content[0] as { type: 'text'; text: string }).text,
+        ).toStrictEqual('Hello from Claude!');
+      });
+
+      it('routes a non-"gemini"/"imagen" model to Google when protocol is "google"', async () => {
+        const result = await provider('custom-google-model', {
+          protocol: 'google',
+        }).doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(lastRequest?.url).toBe(
+          'https://aihubmix.com/gemini/v1beta/models/custom-google-model:generateContent',
+        );
+        expect(lastRequest?.headers['x-goog-api-key']).toBe('test-api-key');
+        expect(
+          (result.content[0] as { type: 'text'; text: string }).text,
+        ).toStrictEqual('Hello from forced Gemini!');
+      });
+
+      it('routes a "claude-" prefixed model to OpenAI-compatible when protocol is "openai-compat"', async () => {
+        await provider('claude-forced-openai-compat', {
+          protocol: 'openai-compat',
+        }).doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(lastRequest?.url).toBe(
+          'https://aihubmix.com/v1/chat/completions',
+        );
+      });
+
+      it('falls back to prefix-based detection when protocol is not a recognized value', async () => {
+        await provider('claude-3-sonnet-20240229', {
+          protocol: 'not-a-real-protocol',
+        }).doGenerate({
+          prompt: TEST_PROMPT,
+        });
+
+        expect(lastRequest?.url).toBe('https://aihubmix.com/v1/messages');
       });
     });
   });
